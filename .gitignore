@@ -1,6 +1,9 @@
 # Local
 local_settings.py
 
+# Spreadsheets
+*.xls
+
 # Editors
 .vscode/
 .idea/
