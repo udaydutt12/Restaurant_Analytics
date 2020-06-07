@@ -18,6 +18,11 @@ driver.find_element_by_id("email").send_keys(EMAIL)
 driver.find_element_by_id("password").send_keys(PASSWORD)
 sleep(2)
 driver.find_element_by_id("log-in").click()
+sleep(1)
+driver.find_element_by_id("switch-restaurants-menu").click()
+sleep(1)
+driver.find_element_by_link_text("Sushi Madre - Saunders").click()
+sleep(1)
 driver.get("https://www.toasttab.com/restaurants/admin/reports/home")
 sleep(1)
 driver.find_element_by_id("first-load-container").find_element_by_tag_name("button").click()
@@ -30,7 +35,6 @@ custom_button.click()
 restaurant_first_day = datetime.datetime(2016, 12, 12)
 today = datetime.datetime.today()
 days_delta = (today - restaurant_first_day).days
-i = 0
 
 for i in range(0, days_delta):
     report_date_start = driver.find_element_by_name("reportDateStart")
