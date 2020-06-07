@@ -6,7 +6,7 @@ import datetime
 from time import sleep
 from os import getcwd
 
-from local_settings import EMAIL, PASSWORD, DRIVER_PATH
+from settings import EMAIL, PASSWORD, DRIVER_PATH
 
 
 chrome_options = webdriver.ChromeOptions()
