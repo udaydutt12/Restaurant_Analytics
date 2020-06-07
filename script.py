@@ -3,15 +3,16 @@ from selenium import webdriver
 from time import sleep
 from os import getcwd
 
-chrome_options = webdriver.ChromeOptions() 
+from local_settings import EMAIL, PASSWORD, DRIVER_PATH
+
+
+chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
 chrome_options.add_experimental_option("prefs", {"download.default_directory": getcwd()})
-driver = webdriver.Chrome(options=chrome_options)
-email = 'bob@gmail.com'
-password = '123456789'
+driver = webdriver.Chrome(options=chrome_options, executable_path=DRIVER_PATH)
 driver.get('https://www.toasttab.com/login')
-driver.find_element_by_id("email").send_keys(email)
-driver.find_element_by_id("password").send_keys(password)
+driver.find_element_by_id("email").send_keys(EMAIL)
+driver.find_element_by_id("password").send_keys(PASSWORD)
 sleep(2)
 driver.find_element_by_id("log-in").click()
 driver.get("https://www.toasttab.com/restaurants/admin/reports/home")
