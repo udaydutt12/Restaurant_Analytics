@@ -1,5 +1,10 @@
+Del_Mar/
+Loop_20/
+McPherson/
+Saunders/
+share/
 # Local
-local_settings.py
+settings.py
 
 # Spreadsheets
 *.xls
