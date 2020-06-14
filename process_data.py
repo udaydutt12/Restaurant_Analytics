@@ -16,10 +16,20 @@ def goToNextNan(df, i):
         val = df.iloc[i, 1]
     return i
 
+def goToNextVal(df, i):
+    val = df.iloc[i, 1]
+    while type(val) == float and isnan(val):
+        i += 1
+        val = df.iloc[i, 1]
+    return i
+
 def create_df(folder, file):
     # summary sheet
     df_summary = pd.read_excel('%s/%s' % (folder, file))
-    current_day = df_summary.iloc[0, 0].split()[0]
+    date_data = df_summary.iloc[0,0].split()
+    if date_data[0] != date_data[2]:
+        return None
+    current_day = date_data[0]
 
     # sales summary
     ss_df1 = create_subdf(df_summary, slice(2,4), slice(1, 8))
@@ -31,15 +41,19 @@ def create_df(folder, file):
     start_idx, cur_idx = 16, 16
     cur_idx = goToNextNan(df_summary, cur_idx)
     p_df2 = df_summary.iloc[start_idx: cur_idx, 1:8] # credit types ***
-
-    # Sales categories
-    cur_idx += 3
-    start_idx, cur_idx = cur_idx, cur_idx + 6
+    # Alternate Payments (skipping)
+    cur_idx += 1
+    cur_idx = goToNextNan(df_summary, cur_idx)
+    cur_idx = goToNextVal(df_summary, cur_idx)
+    # Sales categories ***
+    start_idx = cur_idx
+    cur_idx = goToNextNan(df_summary, cur_idx)
     s_df = create_subdf(df_summary, slice(start_idx, cur_idx), slice(1, 8))
 
     # Revenue Centers
     cur_idx += 1
-    start_idx, cur_idx = cur_idx, cur_idx + 4
+    start_idx = cur_idx
+    cur_idx = goToNextNan(df_summary, cur_idx)
     r_df = create_subdf(df_summary, slice(start_idx, cur_idx), slice(1, 8))
 
     # Dining Options ***
@@ -74,12 +88,14 @@ def create_df(folder, file):
 
     # Sales by Service
     cur_idx += 2
-    start_idx, cur_idx = cur_idx, cur_idx + 4
+    start_idx = cur_idx
+    cur_idx = goToNextNan(df_summary, cur_idx)
     sbs_df = create_subdf(df_summary, slice(start_idx, cur_idx), slice(1, 4))
 
     # Voids
     cur_idx += 2
-    start_idx, cur_idx = cur_idx, cur_idx + 2
+    start_idx = cur_idx
+    cur_idx = goToNextNan(df_summary, cur_idx)
     v_df = create_subdf(df_summary, slice(start_idx, cur_idx), slice(1, 5))
 
     # Cash Summary

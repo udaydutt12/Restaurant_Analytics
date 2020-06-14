@@ -1,28 +1,32 @@
 import pymongo
+from tqdm import tqdm
 from settings import DB_USERNAME, DB_PASSWORD, DB_ROOT
 from process_data import create_df
 from os import listdir
 from math import isnan
 
+def filter_string(s):
+    return s.replace('$','').replace(',','').replace('%','').replace('--','-')
+
 def addSalesSummary(ss_df1, ss_df2, document):
     document['SalesSummary'] = {
-        'NetSales': ss_df1.iloc[0, 0],
-        'Tax': ss_df1.iloc[0, 1],
-        'Gratuity': ss_df1.iloc[0, 2],
-        'Tips': ss_df1.iloc[0, 2],
-        'Refunds': ss_df1.iloc[0, 3],
-        'Deferred': ss_df1.iloc[0, 4],
-        'Total': ss_df1.iloc[0, 5],
+        'NetSales': float(filter_string(ss_df1.iloc[0, 0][1:])),
+        'Tax': float(filter_string(ss_df1.iloc[0, 1])),
+        'Gratuity': float(filter_string(ss_df1.iloc[0, 2])),
+        'Tips': float(filter_string(ss_df1.iloc[0, 2])),
+        'Refunds': float(filter_string(ss_df1.iloc[0, 3])),
+        'Deferred': float(filter_string(ss_df1.iloc[0, 4])),
+        'Total': float(filter_string(ss_df1.iloc[0, 5])),
         'GuestCount': ss_df2.iloc[0, 0],
         'OrderCount': ss_df2.iloc[0, 1],
         'Discounts': ss_df2.iloc[0, 2],
-        'TipsWithheld': ss_df2.iloc[0, 3]
+        'TipsWithheld': float(filter_string(ss_df2.iloc[0, 3]))
     }
 
 def addPaymentSummary(p_df1, p_df2, document):
     payment_type = {}
     for i in range(len(p_df1)):
-        current_type = p_df1.iloc[i, 0]
+        current_type = ''.join(p_df1.iloc[i, 0].split())
         payment_type[current_type] = {
             'Count': 0 if isnan(p_df1.iloc[i, 1]) else p_df1.iloc[i, 1],
             'Amount': 0 if isnan(p_df1.iloc[i, 2]) else p_df1.iloc[i, 2],
@@ -37,7 +41,7 @@ def addPaymentSummary(p_df1, p_df2, document):
         return
     credit_type = {}
     for i in range(len(p_df2)):
-        current_type = p_df2.iloc[i, 0]
+        current_type = ''.join(p_df2.iloc[i, 0].split())
         credit_type[current_type] = {
             'Count': 0 if isnan(p_df2.iloc[i, 1]) else p_df2.iloc[i, 1],
             'Amount': 0 if isnan(p_df2.iloc[i, 2]) else p_df2.iloc[i, 2],
@@ -53,22 +57,14 @@ def addPaymentSummary(p_df1, p_df2, document):
 def addSalesCategories(s_df, document):
     document['SalesCategories'] = {}
     sales_categories = document['SalesCategories']
-    for i in range(len(s_df) - 1):
-        if i == 3:
-            continue
-        sales_categories[s_df.iloc[i, 0]] = {
+    for i in range(len(s_df)):
+        current_category = ''.join(s_df.iloc[i, 0].split())
+        sales_categories[current_category] = {
             'OrderCount': 0 if isnan(s_df.iloc[i, 1]) else s_df.iloc[i, 1],
             'ItemCount': 0 if isnan(s_df.iloc[i, 2]) else s_df.iloc[i, 2],
             'GrossAmt': 0 if isnan(s_df.iloc[i, 3]) else s_df.iloc[i, 3],
             'Discounts': 0 if isnan(s_df.iloc[i, 4]) else s_df.iloc[i, 4]
         }
-
-    sales_categories['None'] = {
-            'OrderCount': 0 if isnan(s_df.iloc[3, 1]) else s_df.iloc[3, 1],
-            'ItemCount': 0 if isnan(s_df.iloc[3, 2]) else s_df.iloc[3, 2],
-            'GrossAmt': 0 if isnan(s_df.iloc[3, 3]) else s_df.iloc[3, 3],
-            'Discounts': 0 if isnan(s_df.iloc[3, 4]) else s_df.iloc[3, 4]
-    }
 
 def addRevenueCenter(r_df, document):
     document['RevenueCenter'] = {
@@ -163,32 +159,32 @@ def addCheckDiscounts(cd_df, document):
 def addSalesByService(sbs_df, document):
     document['SalesByService'] = {
         'Lunch': {
-            'Orders': sbs_df.iloc[0, 1],
-            'NetSales': sbs_df.iloc[0, 2]
+            'Orders': float(filter_string(sbs_df.iloc[0, 1])),
+            'NetSales': float(filter_string(sbs_df.iloc[0, 2]))
         },
         'Dinner': {
-            'Orders': sbs_df.iloc[1, 1],
-            'NetSales': sbs_df.iloc[1, 2]
+            'Orders': float(filter_string(sbs_df.iloc[1, 1])),
+            'NetSales': float(filter_string(sbs_df.iloc[1, 2]))
         },
         'NoService': {
-            'Orders': sbs_df.iloc[2, 1],
-            'NetSales': sbs_df.iloc[2, 2]
+            'Orders': float(filter_string(sbs_df.iloc[2, 1])),
+            'NetSales': float(filter_string(sbs_df.iloc[2, 2]))
         }
     }
 
 def addVoids(v_df, document):
     document['Voids'] = {
-        'Amount': v_df.iloc[0,0],
-        'OrderCount': v_df.iloc[0,1],
-        'ItemCount': v_df.iloc[0,2],
-        'Percent': v_df.iloc[0,3] 
+        'Amount': float(filter_string(v_df.iloc[0,0])),
+        'OrderCount': float(filter_string(v_df.iloc[0,1])),
+        'ItemCount': float(filter_string(v_df.iloc[0,2])),
+        'Percent': float(filter_string(v_df.iloc[0,3]))
     }
 
 def addHourly(df_hourly, document):
     hourly = {}
     for i in range(len(df_hourly)):
         hourly[str(df_hourly.iloc[i, 0])] = {
-            'NetSales': df_hourly.iloc[i, 1],
+            'NetSales': float(filter_string(df_hourly.iloc[i, 1])),
             'OrderCount': df_hourly.iloc[i, 2].item(),
             'GuestCount': df_hourly.iloc[i, 3].item()
         }
@@ -200,19 +196,33 @@ def verifyDocument(document):
         if type(document[key]) == dict:
             verifyDocument(document[key])
 
-if __name__ == '__main__':
+def getClient():
     client = pymongo.MongoClient(
                 'mongodb+srv://%s:%s@restaurant-data-xxxqf.mongodb.net/%s?retryWrites=true&w=majority' %
                 (DB_USERNAME, DB_PASSWORD, DB_ROOT)
             )
+    return client
+
+def emptyCollections(db):
+    for year in range(2016, 2021):
+        collection = db[str(year)]
+        collection.remove({})
+
+if __name__ == '__main__':
+    client = getClient()
     db = client.restaurant_data
     folder_names = ['Del_Mar', 'McPherson', 'Loop_20', 'Saunders']
     i = 0
     for folder in folder_names:
-        for file in listdir(folder):
-            (current_day, ss_df1, ss_df2, p_df1,p_df2, s_df, r_df,d_df, t_df, sc_df, m_df, cd_df, sbs_df, v_df,
-            total_cash_payments, cash_adjustments,cash_before_tipouts,cash_gratuity, credit_non_cash_gratuity,
-            credit_non_cash_tips,total_cash, df_hourly) = create_df(folder, file) 
+        for file in tqdm(listdir(folder)):
+            print(folder, file)
+            try:
+                (current_day, ss_df1, ss_df2, p_df1,p_df2, s_df, r_df,d_df, t_df, sc_df, m_df, cd_df, sbs_df, v_df,
+                total_cash_payments, cash_adjustments,cash_before_tipouts,cash_gratuity, credit_non_cash_gratuity,
+                credit_non_cash_tips,total_cash, df_hourly) = create_df(folder, file)
+            except:
+                print('skipping')
+                continue
             month, day, year = tuple(current_day.split('/'))
             if len(month) == 1:
                 month = '0' + month
@@ -234,18 +244,14 @@ if __name__ == '__main__':
             addSalesByService(sbs_df, document)
             addVoids(v_df, document)
             document['CashSummary'] = {
-                'TotalCashPayments': total_cash_payments,
-                'CashAdjustments': cash_adjustments,
-                'CashBeforeTipouts': cash_before_tipouts,
-                'CashGratuity': cash_gratuity,
-                'CreditNonCashGratuity': credit_non_cash_gratuity,
-                'CreditNonCashTips': credit_non_cash_tips,
-                'TotalCash': total_cash
+                'TotalCashPayments': float(filter_string(total_cash_payments)),
+                'CashAdjustments': float(filter_string(cash_adjustments)),
+                'CashBeforeTipouts': float(filter_string(cash_before_tipouts)),
+                'CashGratuity': float(filter_string(cash_gratuity)),
+                'CreditNonCashGratuity': float(filter_string(credit_non_cash_gratuity)),
+                'CreditNonCashTips': float(filter_string(credit_non_cash_tips)),
+                'TotalCash': float(filter_string(total_cash))
             }
             addHourly(df_hourly, document)
             current_collection.insert_one(document)
-            i += 1
-            if i == 100:
-                break
-        break
  
