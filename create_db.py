@@ -1,9 +1,16 @@
 import pymongo
 from tqdm import tqdm
-from settings import DB_USERNAME, DB_PASSWORD, DB_ROOT
+from local_settings import DB_USERNAME, DB_PASSWORD, DB_ROOT
 from process_data import create_df
 from os import listdir
 from math import isnan
+
+def getClient():
+    client = pymongo.MongoClient(
+                'mongodb+srv://%s:%s@restaurant-data-xxxqf.mongodb.net/%s?retryWrites=true&w=majority' %
+                (DB_USERNAME, DB_PASSWORD, DB_ROOT)
+            )
+    return client
 
 def filter_string(s):
     return s.replace('$','').replace(',','').replace('%','').replace('--','-')
@@ -195,13 +202,6 @@ def verifyDocument(document):
         print(key, type(document[key]))
         if type(document[key]) == dict:
             verifyDocument(document[key])
-
-def getClient():
-    client = pymongo.MongoClient(
-                'mongodb+srv://%s:%s@restaurant-data-xxxqf.mongodb.net/%s?retryWrites=true&w=majority' %
-                (DB_USERNAME, DB_PASSWORD, DB_ROOT)
-            )
-    return client
 
 def emptyCollections(db):
     for year in range(2016, 2021):
