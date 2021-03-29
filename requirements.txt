@@ -32,7 +32,7 @@ plink==2.3
 plotly==4.8.1
 prompt-toolkit==3.0.5
 ptyprocess==0.6.0
-Pygments==2.6.1
+Pygments==2.7.4
 pykerberos==1.2.1
 pymongo==3.10.1
 pypng==0.0.20
