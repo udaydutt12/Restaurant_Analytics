@@ -46,7 +46,7 @@ snappy-manifolds==1.1.1
 spherogram==1.8.2
 tqdm==4.46.1
 traitlets==4.3.3
-urllib3==1.25.9
+urllib3==1.26.5
 wcwidth==0.2.4
 Werkzeug==1.0.1
 xlrd==1.2.0
